@@ -1,36 +1,38 @@
+pub mod base;
+pub mod traits;
+
 use std::net::TcpStream;
 use std::io::prelude::*;
+use crate::traits::*;
+use crate::base::*;
+use std::{thread, time};
+
 
 fn main() {
+
+    
+
+    let ten_millis = time::Duration::from_millis(500    );
+
+
+    
 
     let screen = Screen {
         domain: String::from("skarm.ludd.ltu.se"), 
         port: String::from("1337"), 
-        area: Area {x: 200, y: 100, height: 100, width: 100}
+        area: Area {x: 200, y: 100, height: 300, width: 400}
     };
 
-    let image = ImageBuilder::new(String::from("test.png"));
+    let image = ImageBuilder::new(String::from("arch.png"));
 
-    screen.write_graphic(&image);
-}
-
-#[derive(Default)]
-#[derive(Clone)]
-struct Pixel {
-    coordinates: Coordinate,
-    red: u8,
-    blue: u8,
-    green: u8,
-    alpha: u8
+    loop {
+        screen.write_graphic(&image);
+        thread::sleep(ten_millis);
+    }
+    
 }
 
 
-#[derive(Default)]
-#[derive(Clone)]
-struct Coordinate {
-    x: usize,
-    y: usize
-}
 
 
 
@@ -45,25 +47,22 @@ impl ImageBuilder {
 }
 
 
-impl Graphic for image::DynamicImage {
-    fn as_pixels(&self) -> Box<Vec<Pixel>> {
+impl traits::Graphic for image::DynamicImage {
+    fn as_pixels(&self) -> Box<Vec<base::Pixel>> {
         let raw = self.as_rgba8().unwrap();
 
-        let width = raw.dimensions().0;
-        let height = raw.dimensions().1;
+        let width = raw.dimensions().0-1;
+        let height = raw.dimensions().1-1;
 
         let total_pxl_count = width*height;
 
         let mut grid = vec![Pixel::default(); total_pxl_count as usize];
         let mut index: u32 = 0;
 
-        for pi in 0..=height*width {
+        for pix in 0..=height*width {
 
-            
-
-         
-            let y = f32::floor((index/height) as f32) as u32;
-            let x = (index%height)/4;
+            let y:u32 = pix/width;
+            let x = pix%width;
 
             let p = raw.get_pixel(x, y);
 
@@ -130,7 +129,7 @@ impl Screen {
 impl Pixel {
     fn as_command(&self) -> String {
         return format!("PX {} {} {}{}{}{} \n",
-                       self.coordinates.x, self.coordinates.y, self.red.hex_fmt(), self.green.hex_fmt(), self.blue.hex_fmt(), self.alpha.hex_fmt());
+                self.coordinates.x, self.coordinates.y, self.red.hex_fmt(), self.green.hex_fmt(), self.blue.hex_fmt(), self.alpha.hex_fmt());
     }
 }
 
@@ -142,13 +141,7 @@ struct Area {
     height: u16
 }
 
-trait Graphic {
-    fn as_pixels(&self) -> Box<Vec<Pixel>>;
-}
 
-trait Hex {
-    fn hex_fmt(&self) -> String;
-}
 
 impl Hex for u8 {
     fn hex_fmt(&self) -> String {
