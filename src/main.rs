@@ -20,7 +20,7 @@ fn main() {
     let screen = Screen {
         domain: String::from("skarm.ludd.ltu.se"), 
         port: String::from("1337"), 
-        area: Area {x: 200, y: 100, height: 300, width: 400}
+        area: Area {x: 200, y: 100}
     };
 
     let image = ImageBuilder::new(String::from("arch.png"));
@@ -136,9 +136,7 @@ impl Pixel {
 #[derive(Default)]
 struct Area {
     x: usize,
-    y: usize,
-    width: u16,
-    height: u16
+    y: usize
 }
 
 
