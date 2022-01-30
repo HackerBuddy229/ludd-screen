@@ -20,7 +20,7 @@ fn main() {
     let screen = Screen {
         domain: String::from("skarm.ludd.ltu.se"), 
         port: String::from("1337"), 
-        area: Area {x: 200, y: 100}
+        area: Area {x: 680, y: 10}
     };
 
     let image = ImageBuilder::new(String::from("hakan.png"));
