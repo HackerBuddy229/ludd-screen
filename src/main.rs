@@ -12,7 +12,7 @@ fn main() {
 
     
 
-    let ten_millis = time::Duration::from_millis(500    );
+    let refresh_time = time::Duration::from_millis(40);
 
 
     
@@ -23,11 +23,11 @@ fn main() {
         area: Area {x: 200, y: 100}
     };
 
-    let image = ImageBuilder::new(String::from("arch.png"));
+    let image = ImageBuilder::new(String::from("hakan.png"));
 
     loop {
         screen.write_graphic(&image);
-        thread::sleep(ten_millis);
+        thread::sleep(refresh_time);
     }
     
 }
