@@ -12,7 +12,7 @@ fn main() {
 
     
 
-    let refresh_time = time::Duration::from_millis(40);
+    let refresh_time = time::Duration::from_millis(20);
 
 
     
