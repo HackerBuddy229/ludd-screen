@@ -27,7 +27,7 @@ fn main() {
 
     loop {
         screen.write_graphic(&image);
-        thread::sleep(refresh_time);
+//        thread::sleep(refresh_time);
     }
     
 }
