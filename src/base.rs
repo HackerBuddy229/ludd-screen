@@ -17,3 +17,9 @@
         pub y: usize
     }
 
+    #[derive(Default)]
+    pub struct Area {
+        pub x: usize,
+        pub y: usize
+    }
+

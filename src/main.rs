@@ -12,7 +12,7 @@ fn main() {
 
     
 
-    let refresh_time = time::Duration::from_millis(20);
+    //let refresh_time = time::Duration::from_millis(20);
 
 
     
@@ -24,10 +24,11 @@ fn main() {
     };
 
     let image = ImageBuilder::new(String::from("hakan.png"));
+    let grid = image.as_pixels(&screen.area);
 
     loop {
-        screen.write_graphic(&image);
-//        thread::sleep(refresh_time);
+        screen.write_grid(&grid);
+        //thread::sleep(refresh_time);
     }
     
 }
@@ -48,23 +49,23 @@ impl ImageBuilder {
 
 
 impl traits::Graphic for image::DynamicImage {
-    fn as_pixels(&self) -> Box<Vec<base::Pixel>> {
+    fn as_pixels(&self, area: &Area) -> Box<Vec<base::Pixel>> {
         let raw = self.as_rgba8().unwrap();
 
-        let width = raw.dimensions().0-1;
-        let height = raw.dimensions().1-1;
+        let width = (raw.dimensions().0-1) as usize;
+        let height = (raw.dimensions().1-1) as usize;
 
         let total_pxl_count = width*height;
 
         let mut grid = vec![Pixel::default(); total_pxl_count as usize];
-        let mut index: u32 = 0;
+        let mut index: usize = 0;
 
         for pix in 0..=height*width {
 
-            let y:u32 = pix/width;
+            let y:usize = pix/width;
             let x = pix%width;
 
-            let p = raw.get_pixel(x, y);
+            let p = raw.get_pixel(x as u32, y as u32);
 
 
             let pixel = Pixel {
@@ -72,7 +73,7 @@ impl traits::Graphic for image::DynamicImage {
                 green: p[1],
                 blue: p[2],
                 alpha: p[3],
-                coordinates: Coordinate {x: x as usize, y: y as usize}
+                coordinates: Coordinate {x: x+area.x as usize, y: y+area.y as usize}
             };
 
             grid.push(pixel);
@@ -96,18 +97,19 @@ struct Screen {
 
 impl Screen {
     fn write_graphic(&self, graphic: &dyn Graphic) {
+        self.write_grid(&graphic.as_pixels(&self.area));
+    }
+
+    fn write_grid(&self, grid: &Box<Vec<Pixel>>) {
         if let Ok(mut stream) = TcpStream::connect(format!("{}:{}", self.domain, self.port)) {
-            let grid = *graphic.as_pixels();
+            let grid_raw = &*(*grid);
 
             let mut output:String = String::from("");
 
-            for pxl in grid as Vec<Pixel>{
+            for pxl in grid_raw as &Vec<Pixel>{
 
-                let mut pixel = pxl.clone();
-                pixel.coordinates.x = pixel.coordinates.x + self.area.x;
-                pixel.coordinates.y = pixel.coordinates.y + self.area.y;
-
-                let command = pixel.as_command();
+            
+                let command = pxl.as_command();
                 output = output + &command;
                 
             }
@@ -133,11 +135,7 @@ impl Pixel {
     }
 }
 
-#[derive(Default)]
-struct Area {
-    x: usize,
-    y: usize
-}
+
 
 
 
